@@ -81,22 +81,11 @@ public class IndexedWord {
         Map<String, Integer> result = new LinkedHashMap<>();
         Stream<Map.Entry<String, Integer>> stream = occurrences.entrySet().stream();
 
-        stream.sorted( idfComp() )
+        stream.sorted( (c1, c2) -> c2.getValue().compareTo(c1.getValue()) )
                 .forEachOrdered( e -> result.put(e.getKey(), e.getValue()) );
 
         return result;
 
-    }
-
-    /**
-     * This comparator is used instead of the "Map.Entry.comparingByValue()" comparator, that sorts in ascending order.
-     * @param <K>
-     * @param <V>
-     * @return
-     */
-    private static <K, V extends Comparable<? super V>> Comparator<Map.Entry<K,V>> idfComp() {
-        return (Comparator<Map.Entry<K, V>> & Serializable)
-                (c1, c2) -> c2.getValue().compareTo(c1.getValue());
     }
 
 }

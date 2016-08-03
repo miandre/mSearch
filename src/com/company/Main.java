@@ -14,7 +14,7 @@ import java.nio.file.*;
  * @author Mikael André
  */
 
-public class Main extends IOException {
+public class Main {
 
     public static void main(String[] args){
 
