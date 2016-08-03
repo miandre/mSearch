@@ -6,9 +6,7 @@ import java.nio.file.DirectoryIteratorException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Created by Micke on 2016-08-02.
@@ -46,6 +44,10 @@ public class SearchEngine {
      * @throws IOException
      */
     private void indexFiles() throws IOException {
+        int docCount = 0;
+        int wordCount = 0;
+        double start = System.currentTimeMillis();
+
 
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "*.{txt}")) {
 
@@ -53,15 +55,17 @@ public class SearchEngine {
             for (Path entry: stream) {
                 List<String> allLines = Files.readAllLines(entry, Charset.defaultCharset());
                 String documentName = entry.toString().split("\\W+")[1];
-
+                docCount++;
                 //Go through all lines in each document
                 for (String s:allLines) {
                     String[] words = s.trim().split("\\W+");
 
                     //Go through each word of a non empty line and index the word and document occurrence
                     if(words.length>0) {
-                        for (int i = 0; i<words.length; i++)
-                            handleWord(words[i].toLowerCase(),documentName);
+                        for (int i = 0; i<words.length; i++) {
+                            handleWord(words[i].toLowerCase(), documentName);
+                        wordCount++;
+                        }
                     }
                 }
             }
@@ -71,6 +75,7 @@ public class SearchEngine {
             throw ex.getCause();
         }
 
+        System.out.println(wordCount+" words in "+docCount+" documents indexed in "+ (System.currentTimeMillis()-start)+"ms.");
     }
 
     /**
@@ -122,14 +127,21 @@ public class SearchEngine {
             //Wait for user input
             String phrase = input.next().trim();
 
+            double stop=0;
+            double start = System.currentTimeMillis();
             if(index.get(phrase)!= null ) {
+            Set<String> result = index.get(phrase).getDocumentList().keySet();
+                stop = System.currentTimeMillis();
                 System.out.println("The word " + phrase + " can be found in the following documents: ");
-                for (String s: index.get(phrase).getDocumentList().keySet()) {
+                for (String s: result) {
                     System.out.println(s);
                 }
 
-            }else System.out.println("The word "+phrase+" can not be found in any document");
-
+            }else {
+                System.out.println("The word " + phrase + " can not be found in any document");
+                stop = System.currentTimeMillis();
+            }
+                System.out.println("Search time: "+(stop-start)+"ms");
         }
 
     }
